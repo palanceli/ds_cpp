@@ -2,23 +2,10 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "clang++ build active file",
-            "command": "/usr/bin/clang++",
-            "args": [
-                "-g",
-                "${file}",
-                "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
-            ],
-            "options": {
-                "cwd": "/usr/bin"
-            }
-        },
-        {
-            "type": "shell",
             "label": "clang build active file",
-            "command": "/usr/bin/clang",
+            "command": "clang++",
             "args": [
+                "-std=c++17",
                 "-g",
                 "${file}",
                 "-o",
@@ -31,6 +18,20 @@
                 "$gcc"
             ],
             "group": "build"
+        },
+        {
+            "type": "shell",
+            "label": "clang++ build active file",
+            "command": "/usr/bin/clang++",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}"
+            ],
+            "options": {
+                "cwd": "/usr/bin"
+            }
         }
     ],
     "version": "2.0.0"
