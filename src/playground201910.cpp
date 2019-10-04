@@ -2,6 +2,7 @@
 #include <string.h>
 #include <iostream>
 #include <gtest/gtest.h>
+#include <algorithm>
 #include "glog/logging.h"
 
 // ./ds_cpp --gtest_filter=Playground201910.TC02
@@ -174,5 +175,259 @@ public:
 
 TEST_F(Playground201910, TC02){
   TC02Solution s;
+  s.main();
+}
+
+class TC03Solution {
+  // 假设我们有一个队列，可能存放几千万上亿的数据，我们应该如何设计这个队列？
+  // 写出来看看？
+  // （提问：这个队列是只需要在头尾添加和删除吗？双向队列？答：是的） 
+public:
+  template <class V>
+  class Node
+  {
+  public:
+    Node *pNext;
+    Node *pPre;
+    V value;
+  };
+
+  template <class V>
+  class DoubleLinkList{
+    Node<V> *head;
+    Node<V> *tail;
+    public:
+    DoubleLinkList(){
+      head = nullptr;
+      tail = nullptr;
+    }
+    void addHead(V value){
+      Node<V> *pNode = new(Node<V>);
+      pNode->value = value;
+      if(head == nullptr){
+        pNode->pNext = nullptr;
+        pNode->pPre = nullptr;
+        tail = pNode;
+      }else{
+        pNode->pNext = head;
+        head->pPre = pNode;
+      }
+      head = pNode;
+    }
+    Node<V>* removeHead(){
+      Node<V>* pNode = head;
+      if(pNode == nullptr)
+        return nullptr;
+      if(head->pNext == nullptr){
+        tail = nullptr;
+      }else{
+        head->pPre = nullptr;
+      }
+      head = pNode->pNext;
+      return pNode;
+    }
+    void print(){
+      for(Node<V>* node=head; node!=nullptr; node=node->pNext){
+        LOG(INFO)<<node->value;
+      }
+    }
+  };
+
+  // 为什么不能偏特化？
+  // template<>
+  // class DoubleLinkList<int>{
+  //   public:
+  //   void print(){
+  //     for(Node<int>* node=head; node!=nullptr; node=node->pNext){
+  //       printf(" %d", node->value);
+  //     }
+  //     printf("\n");
+  //     for(Node<int>* node=tail; node!=nullptr; node=node->pPre){
+  //       printf(" %d", node->value);
+  //     }
+  //     printf("\n");
+  //   }
+  // };
+  
+  void main(){
+    DoubleLinkList<int> dll;
+    for(int i=0; i<8; i++){
+      dll.addHead(i);
+    }
+    dll.print();
+    LOG(INFO)<<"removing double link list...";
+    Node<int>* pNode = dll.removeHead();
+    while(pNode!=nullptr){
+      LOG(INFO)<<pNode->value;
+      delete pNode;
+      pNode = dll.removeHead();
+    }
+  }
+};
+TEST_F(Playground201910, TC03){
+  TC03Solution s;
+  s.main();
+}
+
+class TC04Solution {
+  // 在一个二维数组中，每一行都从左到右，每一列都从上到下都是递增的。
+  // 请完成一个函数，输入该矩阵和一个整数，判断数组中是否含有该整数。
+  // 思路：
+  // 矩阵从左下角来看，向上递减，向右递增。因此从左下角开始查找，
+  // 当要查找数字比左下角数字大时，右移
+  // 当要查找数字比左下角数字小时，上移
+
+public:
+  bool find(std::vector<std::vector<int> > matrix, int obj){
+    int row = matrix.size() - 1;
+    int col = 0;
+    int maxCol = matrix[0].size();
+    while(row>=0 && col<maxCol){
+      if(obj>matrix[row][col]){
+        col++;
+      }else if(obj<matrix[row][col]){
+        row--;
+      }else{
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void main(){
+    int data[4][6]={
+      {0, 4, 7,  9,  12, 20},
+      {3, 6, 10, 15, 17, 24},
+      {5, 9, 12, 18, 21, 25},
+      {7, 10,16, 20, 24, 30},
+    };
+    std::vector<std::vector<int> > matrix;
+    for(int i=0; i<4; i++){
+      std::vector<int> row;
+      for(int j=0; j<6; j++){
+        row.push_back(data[i][j]);
+      }
+      matrix.push_back(row);
+    }
+    LOG(INFO)<<find(matrix, 23);
+  }
+};
+TEST_F(Playground201910, TC04){
+  TC04Solution s;
+  s.main();
+}
+
+class TC05Solution {
+  // 翻转链表
+  class Node
+  {
+  public:
+    Node *m_pNext;
+    int m_value;
+    Node(int value, Node *pNext = nullptr) : m_pNext(pNext), m_value(value) {}
+  };
+
+public:
+  void printLinklist(Node* pHead){
+    for(Node* pNode=pHead; pNode!=nullptr; pNode=pNode->m_pNext){
+      printf(" %d", pNode->m_value);
+    }
+    printf("\n");
+  }
+
+  Node* revertLinklist(Node* pHead){
+    if(pHead == nullptr || pHead->m_pNext == nullptr)
+      return pHead;
+    Node *p1 = pHead;
+    Node *p2 = pHead->m_pNext;
+    p1->m_pNext = nullptr;
+    while(p2 != nullptr){
+      Node *pTmp = p2->m_pNext;
+      p2->m_pNext = p1;
+      p1 = p2;
+      p2 = pTmp;
+    }
+    return p1;
+  }
+
+  void main(){
+    Node* pHead = new Node(0);
+    for(int i=1; i<10; i++){
+      Node* pTmp = new Node(i, pHead);
+      pHead = pTmp;
+    }
+    printLinklist(pHead);
+    pHead = revertLinklist(pHead);
+    printLinklist(pHead);
+  }
+};
+
+TEST_F(Playground201910, TC05){
+  TC05Solution s;
+  s.main();
+}
+
+class TC06Solution {
+  // 给出一棵二叉树，寻找一条路径使其路径和最大，路径可以在任一节点中开始和结束
+  // 路径和为两个节点之间所在路径上的节点权值之和
+  // 思路：
+  // 对于任意节点root，经过它的最大路径是：
+  //  （1）root->value + 以root->left为起点的最大路径
+  //  （2）root->value + 以root->right为起点的最大路径
+  //  （3）root->value
+  //  （4）root->value + 以root->left为起点的最大路径 + 以root->right为起点的最大路径
+  // max(1, 2, 3, 4)，这本身就是一个递归过程，记录下这个过程中的最大值，
+  // 递归的返回值表示以root为起点的最大路径，因此不应包含（4）
+  class TreeNode{
+    public:
+    TreeNode *mLeft, *mRight;
+    int mValue;
+    TreeNode(int value, TreeNode *left=nullptr, TreeNode *right=nullptr) : 
+    mValue(value), mLeft(left), mRight(right) {}
+  };
+public:
+  int res = -100000;
+  int maxPathSum(TreeNode* root){
+    helper(root);
+    return res;
+  }
+  int helper(TreeNode* node){
+    if(node == nullptr)
+      return 0;
+    int left = helper(node->mLeft);
+    int right = helper(node->mRight);
+
+    int maxSum = std::max(std::max(node->mValue+left, node->mValue+right), node->mValue);
+    int maxCurrent = std::max(maxSum, node->mValue+left+right);
+
+    res = std::max(res, maxCurrent);
+    return maxSum;
+  }
+
+  void main(){
+    TreeNode* l1 = new TreeNode(1);
+    TreeNode* r1 = new TreeNode(50);
+    TreeNode* p1 = new TreeNode(-100, l1, r1);
+    TreeNode* l2 = new TreeNode(3);
+    TreeNode* r2 = new TreeNode(4);
+    TreeNode* p2 = new TreeNode(2, l2, r2);
+    TreeNode* p = new TreeNode(10, p1, p2);
+    LOG(INFO)<<maxPathSum(p);
+  }
+};
+
+TEST_F(Playground201910, TC06){
+  TC06Solution s;
+  s.main();
+}
+
+class TCXXSolution {
+public:
+  void main(){
+  }
+};
+
+TEST_F(Playground201910, TCXX){
+  TCXXSolution s;
   s.main();
 }
