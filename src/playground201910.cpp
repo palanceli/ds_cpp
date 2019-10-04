@@ -421,6 +421,251 @@ TEST_F(Playground201910, TC06){
   s.main();
 }
 
+class TC07Solution {
+  // 求连续子数组的最大和
+  // 一个整数数组中的元素有正有负，在该数组中找出一个连续子数组，要求该连续子
+  // 数组中各元素的和最大。比如数组{2,4,-7,5,2,-1,2,-4,3}的最大连续子数组为
+  // {5,2,-1,2}，最大连续子数组的和为5+2-1+2=8。
+  // 问题输入就是一个数组，输出该数组的“连续子数组的最大和”。
+  // 思路：
+  // 从左到右遍历数组，计算以当前元素结尾的子数组的最大和，引入两个辅助变量：
+  // res和sum，res是全局最大和，sum是以当前元素结尾的子数组最大和
+public:
+  int maxSubArray(int* array, int num){
+    int res = array[0];
+    int sum = 0;
+    for(int i=0; i<num; i++){
+      sum += array[i];
+      if(sum > res){
+        res = sum;
+      }
+      // 只要前面的和为正，就可以保留，否则抛弃
+      if(sum < 0){
+        sum = 0;
+      }
+    }
+    return res;
+  }
+
+  void main(){
+    // int data[] = {2, 4, -7, 5, 2, -1, 2, -4, 3};
+    int data[] = {9, 3, -8, -9, 5, 7, 4, 1, -2};
+    int num = sizeof(data) / sizeof(int);
+    LOG(INFO)<<maxSubArray(data, num);
+  }
+};
+
+TEST_F(Playground201910, TC07){
+  TC07Solution s;
+  s.main();
+}
+
+class TC08Solution {
+  // 给定两个字符串数组s1和s2，求s2是由s1删除了哪些元素得到？
+  // 例如s1={"a","b","c","d","e"}, s2={"a","e","c"}, 结果应该为{"b","d"}
+public:
+  void delChars(char* s1, int num1, char* s2, int num2){
+    bool dict[256] = {0};
+    for(int i=0; i<num2; i++){
+      dict[s2[i]] = 1;
+    }
+    int wPos = 0;
+    int rPos = 0;
+    while(rPos < num1){
+      if(dict[s1[rPos]] == 0){
+        s1[wPos] = s1[rPos];
+        wPos++;
+      }
+      rPos++;
+    }
+    s1[wPos] = '\0';
+  }
+  void main(){
+    char s1[] = {"a1b2c3d4e5fg6h7i8j9kl0mn"};
+    char s2[] = {"0123456789"};
+    int num1 = strlen(s1);
+    int num2 = strlen(s2);
+    delChars(s1, num1, s2, num2);
+    LOG(INFO)<<s1;
+  }
+};
+
+TEST_F(Playground201910, TC08){
+  TC08Solution s;
+  s.main();
+}
+
+class TC09Solution {
+  // 二分法求平方根
+public:
+  float mySqrt(int x){
+    float EPSINON = 0.01;
+    float l = 0;
+    float r = x;
+    while(true){
+      float mid = (r + l) / 2;
+      float diff = mid * mid - x;
+      if((diff >= 0 && diff < EPSINON) || diff <= 0 && -diff <EPSINON){
+        return mid;
+      }
+      if(diff > 0){
+        r = mid;
+      }else{
+        l = mid;
+      }
+    }
+  }
+  void main(){
+    LOG(INFO)<<mySqrt(13);
+  }
+};
+
+TEST_F(Playground201910, TC09){
+  TC09Solution s;
+  s.main();
+}
+
+class TC10Solution
+{
+  // 《剑指Offer》p44，定义并实现赋值运算函数
+  class CMyString
+  {
+  public:
+    CMyString(char *pData = nullptr){
+      if(m_pData != nullptr)
+        delete []m_pData;
+      m_pData = pData;
+    }
+    CMyString(const CMyString &str){
+      if(m_pData != nullptr)
+        delete []m_pData;
+      m_pData = new char[strlen(str.m_pData)];
+      strcpy(m_pData, str.m_pData);
+    }
+    ~CMyString(void){
+      if(m_pData != nullptr)
+        delete []m_pData;
+      m_pData = nullptr;
+    }
+    CMyString& operator=(const CMyString& obj){
+      if(this != &obj){
+        CMyString strTmp(obj);
+        char* pTmp = strTmp.m_pData;
+        strTmp.m_pData = m_pData;
+        m_pData = pTmp;
+      }
+      return *this;
+    }
+
+  private:
+    char *m_pData;
+  };
+
+public:
+  void main()
+  {
+  }
+};
+
+TEST_F(Playground201910, TC10){
+  TC10Solution s;
+  s.main();
+}
+
+class TC11Solution {
+  // 在长度为n的数组里，所有数字都∈[0, n-1]数组内某些数字是重复的，但不知道
+  // 有几个数字重复了，也不知道每个数字重复了几次。请找出数组中任一个重复的数字。
+  // 《剑指Offer》题3
+public:
+  int getdup(int *data, int num){
+    int pos = 0;
+    while(pos<num){
+      if(data[pos] != pos){
+        int value = data[pos];
+        if(data[value] == value){
+          return value;
+        }else{
+          int tmp = data[value];
+          data[value] = data[pos];
+          data[pos] = tmp;
+        }
+      }else{
+        pos++;
+      }
+    }
+    return num;
+  }
+  void main(){
+    int data[] = {1, 2, 3, 4, 5, 6, 7, 8, 3};
+    int num = sizeof(data);
+    LOG(INFO)<<getdup(data, num);
+  }
+};
+
+TEST_F(Playground201910, TC11){
+  TC11Solution s;
+  s.main();
+}
+
+
+class TC12Solution {
+  // 在一个长度为n+1的数组里，所有数字都∈[1, n]，因此数组中至少有一个数字
+  // 是重复的。请在不修改输入数组的情况下找出任意重复的数字
+public:
+  int getdup1(int *data, int num){ // 时间优先
+    int *tmp = new int[num];
+    int dup = num+1;
+    for(int i=0; i<num; i++){
+      tmp[i] = num+1;
+    }
+    for(int i=0; i<num; i++){
+      int value = data[i];
+      if(tmp[value] == value){
+        dup = value;
+        break;
+      }else{
+        tmp[value] = value;
+      }
+    }
+    delete []tmp;
+    return dup;
+  }
+  bool hasdup(int *data, int num, int start, int end){
+    int count = 0;
+    for(int i=0; i<num; i++){
+      if(data[i]>=start && data[i]<end)
+        count++;
+      if(count > end-start)
+        return true;
+    }
+    return false;
+  }
+  int getdup2(int *data, int num){ // 空间优先
+    int start = 1;
+    int end = num;
+    while(end - start > 1){
+      LOG(INFO)<<"["<<start<<","<<end<<")";
+      int mid = (start + end) /2 ;
+      if(hasdup(data, num, start, mid)){
+        end = mid;
+      }else{
+        start = mid;
+      }
+    }
+    return start;
+  }
+  void main(){
+    int data[] = {1, 2, 3, 8, 4, 5, 6, 7, 8};
+    int num = sizeof(data)/sizeof(int);
+    LOG(INFO)<<getdup2(data, num);
+  }
+};
+
+TEST_F(Playground201910, TC12){
+  TC12Solution s;
+  s.main();
+}
+
 class TCXXSolution {
 public:
   void main(){
