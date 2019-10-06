@@ -1179,6 +1179,270 @@ TEST_F(Playground201910, TC22){
   s.main();
 }
 
+class TC23Solution {
+  // 给你一根长度为n的绳子，请把绳子剪成m段（m、n都是整数，n>1,m>1），
+  // 每段绳子的长度记为k[0], k[1], ..., k[m]。请问
+  // k[0]×k[1]×...×k[m]可能的最大乘积是多少？
+public:
+  int maxProduct(int length){
+    if(length < 2)
+      return 0;
+    if(length == 2)
+      return 1;
+    if(length == 3)
+      return 2;
+    int* product = new int[length+1];
+    memset(product, sizeof(int), length+1);
+    product[0] = 0;
+    product[1] = 1;
+    product[2] = 2;
+    product[3] = 3;
+    int max = 0;
+    for(int i=4; i<=length; i++){
+      max = 0;
+      for(int j=1; j<=i/2; j++){
+        int tmp = product[j]*product[i-j];
+        if(tmp>max)
+          max =tmp;
+      }
+      product[i] = max;
+    }
+    max = product[length];
+    delete[] product;
+    return max;
+  }
+  void main(){
+    int length = 50;
+    LOG(INFO)<<"max product of "<<length<<" is:"<<maxProduct(length);
+  }
+};
+
+TEST_F(Playground201910, TC23){
+  TC23Solution s;
+  s.main();
+}
+
+class TC24Solution {
+  // 请实现一个函数：输入一个整数，输出该整数中1的个数。
+public:
+  int CountOf1(int num){
+    int count = 0;
+    int flag = 1;
+    while(flag){
+      if(num&flag)
+        count++;
+      flag = flag<<1;
+    }
+    return count;
+  }
+  void main(){
+    int x = -1;
+    printf("----%X\n", (x));
+    int num = 9;
+    LOG(INFO)<<"The number "<<num<<"'s count 1 is:"<<CountOf1(num);
+  }
+};
+
+TEST_F(Playground201910, TC24){
+  TC24Solution s;
+  s.main();
+}
+
+class TC25Solution {
+  // 实现函数double Power(double base, int exponent)，
+  // 求base的exponent次方。
+public:
+  int m_InvalidCalc;
+  double PowerWithUnsignedExp(double base, unsigned int exponent){
+    if(exponent == 0)
+      return 1;
+    if(exponent == 1)
+      return base;
+    double result = PowerWithUnsignedExp(base, exponent>>1);
+    result *= result;
+    if(exponent & 0x01 == 0x01)
+      result *= base;
+    return result;
+  }
+  double Power(double base, int exponent){
+    m_InvalidCalc = 0;
+    unsigned int unsignedExponent = exponent;
+    if (exponent < 0)
+    {
+      if(base == 0){
+        m_InvalidCalc = -1;
+        return 0;
+      }
+      unsignedExponent = -exponent;
+    }
+    double result = PowerWithUnsignedExp(base, unsignedExponent);
+    if(exponent<0)
+      result = 1 / result;
+    return result;
+  }
+  void main(){
+    double base = 2.0;
+    int exponent = 8;
+    LOG(INFO)<<"base="<<base<<", exp="<<exponent<<", result="<<Power(base, exponent);
+  }
+};
+
+TEST_F(Playground201910, TC25){
+  TC25Solution s;
+  s.main();
+}
+
+class TC26Solution {
+  // 输入数字n，按顺序打印出从1到最大的n位十进制数
+public:
+  bool Inc(char* number){
+    bool overflow = false;
+    int takeover = 0;
+    int length = strlen(number);
+    for (int i = length - 1; i >= 0; i--)
+    {
+      int sum = number[i] - '0' + takeover;
+      if (i == length - 1)
+        sum++;
+      if (sum >= 10)
+      {
+        if (i == 0)
+          return true;
+        else
+        {
+          sum -= 10;
+          takeover = 1;
+          number[i] = sum + '0';
+        }
+      }
+      else
+      {
+        number[i] = sum + '0';
+        break;
+      }
+    }
+    return overflow;
+  }
+  void Print1ToMaxOfNDigits(int n){
+    if(n<=0)
+      return;
+    char* number = new char[n+1];
+    memset(number, '0', n);
+    number[n] = '\0';
+    while(!Inc(number)){
+      printf(" %s", number);
+      if(number[strlen(number)-1] == '0')
+        printf("\n");
+    }
+    printf("\n");
+  }
+  void main(){
+    Print1ToMaxOfNDigits(3);
+  }
+};
+
+TEST_F(Playground201910, TC26){
+  TC26Solution s;
+  s.main();
+}
+
+
+class TC27Solution {
+  // 请实现一个函数用来匹配包含'.'和'*'的正则表达式。
+  // 模式中的'.'表示任意一个字符，'*'表示它前面的字符可以出现任意次
+public:
+  bool matchCore(char* str, char* pattern){
+    if(*str == '\0' && *pattern == '\0')
+      return true;
+    if(*str != '\0' && *pattern == '\0')
+      return false;
+
+    if(*(pattern+1) == '*'){
+      if (*pattern == *str || (*pattern == '.' && *str != '\0'))
+      {
+        return matchCore(str + 1, pattern + 2) ||
+               matchCore(str + 1, pattern);
+      }else{
+        return matchCore(str, pattern+2);
+      }
+    }
+    if(*str==*pattern || (*pattern=='.' && *str!= '\0'))
+      return matchCore(str+1, pattern+1);
+    return false;
+  }
+  bool match(char* str, char* pattern){
+    if(str == nullptr || pattern == nullptr)
+      return false;
+    return matchCore(str, pattern);
+  }
+  void main(){
+    char* str = "abbbbc";
+    char* pattern = "ab*c";
+    LOG(INFO)<<"str:"<<str<<" pattern:"<<pattern<<" matched("<<match(str, pattern)<<")";
+  }
+};
+
+TEST_F(Playground201910, TC27){
+  TC27Solution s;
+  s.main();
+}
+
+
+class TC28Solution {
+  // 输入两棵二叉树A和B，判断B是不是A的子结构。
+  struct Node{
+    int m_Value;
+    Node *m_pLeft, *m_pRight;
+    Node(int value, Node* pLeft=nullptr, Node* pRight=nullptr):
+    m_Value(value), m_pLeft(pLeft), m_pRight(pRight){}
+  };
+public:
+  bool hasSubTreeCore(Node* a, Node* b){
+    if(b == nullptr)
+      return true;
+    if(a == nullptr)
+      return false;
+    if(a->m_Value != b->m_Value)
+      return false;
+    return hasSubTreeCore(a->m_pLeft, b->m_pLeft) &&
+    hasSubTreeCore(a->m_pRight, b->m_pRight);
+  }
+  bool hasSubTree(Node* a, Node* b){
+    bool result = false;
+    if(a!=nullptr && b!=nullptr){
+      if(a->m_Value==b->m_Value)
+        result = hasSubTreeCore(a, b);
+      if(!result)
+        result = hasSubTree(a->m_pLeft, b);
+      if(!result)
+        result = hasSubTree(a->m_pRight, b);
+    }
+    return result;
+  }
+  void main(){
+    Node* l = new Node(4);
+    Node* r = new Node(7);
+    Node* p = new Node(2, l, r);
+    r = p;
+    l = new Node(9);
+    p = new Node(8, l, r);
+    l = p;
+    r = new Node(7);
+    p = new Node(8, l, r);
+    Node *A = p;
+
+    l = new Node(9);
+    r = new Node(2);
+    p = new Node(8, l, r);
+    Node *B = p;
+    LOG(INFO)<<"====>"<<hasSubTree(A, B);
+  }
+};
+
+TEST_F(Playground201910, TC28){
+  TC28Solution s;
+  s.main();
+}
 
 class TCXXSolution {
 public:
