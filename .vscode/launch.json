@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
-            "args": [],
+            "args": ["--gtest_filter=Playground201910.TC22"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

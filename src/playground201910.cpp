@@ -666,6 +666,520 @@ TEST_F(Playground201910, TC12){
   s.main();
 }
 
+class TC13Solution {
+  // 把字符串中每个空格替换成"%20"，例如：输入"We are happy."
+  // 输出"We%20are%20happy."
+public:
+  char* replaceSpace(char* data){
+    if(data == nullptr)
+      return nullptr;
+    int cSpace = 0;
+    for(char* p=data; *p!='\0'; p++){
+      if(*p == ' ')
+        cSpace++;
+    }
+    LOG(INFO)<<"space num:%d"<<cSpace;
+    
+    int len = strlen(data);
+    char* p2 = data+len+2*cSpace;
+    for(char* p1=data+len; p1>=data; p1--){
+      if(*p1 != ' '){
+        *p2 = *p1;
+        p2--;
+      }else{
+        *p2-- = '0';
+        *p2-- = '2';
+        *p2-- = '%';
+      }
+    }
+    return data;
+  }
+  void main(){
+    char data[64] = {"We are not happy."};
+    LOG(INFO)<<replaceSpace(data);
+  }
+};
+
+TEST_F(Playground201910, TC13){
+  TC13Solution s;
+  s.main();
+}
+
+class TC14Solution {
+  // 有两个排序数组A1和A2，内存在A1末尾有足够多的空间容纳A2，请实现一个函数
+  // 把A2中所有数字插入A1，并确保数字是排序的。
+public:
+  void mergeArray(int* A1, int num1, int* A2, int num2){
+    int *p1 = A1 + num1 - 1;
+    int *p2 = A2 + num2 - 1;
+    for(int *p = A1+num1+num2-1; p>=A1; ){
+      if (p1 >= A1 && p2 >= A2){
+        if (*p1 >= *p2){
+          *p-- = *p1--;
+        }else{
+          *p-- = *p2--;
+        }
+      }else if(p1 < A1){
+        *p-- = *p2--;
+      }else if(p2 < A2){
+        *p-- = *p1--;
+      }
+    }
+  }
+
+  void main(){
+    int A[] = {0, 2, 6, 8, 10, 14, 20};
+    int A2[] = {1, 3, 8, 17};
+    int A1[64];
+    memcpy(A1, A, sizeof(A));
+    int num1 = sizeof(A) /sizeof(int);
+    int num2 = sizeof(A2) / sizeof(int);
+    mergeArray(A1, num1, A2, num2);
+    LOG(INFO)<<"merge result:";
+    for(int i=0; i<num1+num2; i++){
+      printf(" %d", A1[i]);
+    }
+    printf("\n");
+  }
+};
+
+TEST_F(Playground201910, TC14){
+  TC14Solution s;
+  s.main();
+}
+
+class TC15Solution {
+  // 输入一个连表的头节点，从尾到头反过来打印每个节点的值
+public:
+  struct Node
+  {
+    Node *m_pNext;
+    int m_value;
+  };
+  void printLinklist(Node* p){
+    if(p->m_pNext != nullptr){
+      printLinklist(p->m_pNext);
+    }
+    printf(" %d", p->m_value);
+  }
+  void main(){
+    Node *pHead = nullptr;
+    for(int i=0; i<10; i++){
+      Node *pNode = new(Node);
+      pNode->m_value = i;
+      pNode->m_pNext = pHead;
+      pHead = pNode;
+    }
+    LOG(INFO)<<"print link list:";
+    for(Node* p=pHead; p!=nullptr; p=p->m_pNext){
+      printf(" %d", p->m_value);
+    }
+    printf("\n");
+
+    LOG(INFO)<<"reverse print link list:";
+    printLinklist(pHead);
+    printf("\n");
+  }
+};
+
+TEST_F(Playground201910, TC15){
+  TC15Solution s;
+  s.main();
+}
+
+class TC16Solution {
+  // 输入某二叉树前序遍历和中序遍历序列，构建该二叉树。
+  // 例如前序序列：{1, 2, 4, 7, 3, 5, 6, 8}
+  // 中序序列：{4, 7, 2, 1, 5, 3, 8, 6}
+  // 思路：显然1为根节点，中序序列中{4, 7, 2}和{5, 3, 8, 6}分别在左子树和右子树
+public:
+  struct Node{
+    int m_Value;
+    Node *m_pLeft, *m_pRight;
+  };
+  Node* constructTree(int *preorder, int* inorder, int num){
+    Node* root = new(Node);
+    root->m_Value = *preorder;
+    if(num == 1){
+      if(*preorder != *inorder)
+        return nullptr;
+      return root;
+    }
+    int rootPosInOrder = 0;
+    while(rootPosInOrder<num){
+      if(inorder[rootPosInOrder] == *preorder)
+        break;
+      rootPosInOrder++;
+    }
+    if(rootPosInOrder >= num)
+      return nullptr;
+    Node* left = constructTree(preorder+1, inorder, rootPosInOrder);
+    Node* right = constructTree(preorder+1+rootPosInOrder, 
+    inorder+1+rootPosInOrder, num - rootPosInOrder - 1);
+    root->m_pLeft = left;
+    root->m_pRight = right;
+    return root;
+  }
+  void preWalkthroughTree(Node* node){
+    if(node == nullptr)
+      return;
+    printf(" %d", node->m_Value);
+    preWalkthroughTree(node->m_pLeft);
+    preWalkthroughTree(node->m_pRight);
+  }
+  void inWalkthroughTree(Node* node){
+    if(node == nullptr)
+      return;
+    inWalkthroughTree(node->m_pLeft);
+    printf(" %d", node->m_Value);
+    inWalkthroughTree(node->m_pRight);
+  }
+  void printTree(Node* node){
+    LOG(INFO)<<"pre order walk through:";
+    preWalkthroughTree(node);
+    printf("\n");
+    LOG(INFO)<<"in order walk through:";
+    inWalkthroughTree(node);
+    printf("\n");
+  }
+  void main(){
+    int preorder[] = {1, 2, 4, 7, 3, 5, 6, 8};
+    int num = sizeof(preorder) / sizeof(int);
+    int inorder[] = {4, 7, 2, 1, 5, 3, 8, 6};
+    Node* root = constructTree(preorder, inorder, num);
+    printTree(root);
+  }
+};
+
+TEST_F(Playground201910, TC16){
+  TC16Solution s;
+  s.main();
+}
+
+class TC17Solution {
+  // 给定一颗二叉树和其中一个节点，如何找出中序遍历的下一个节点？
+  // 《剑指Offer》面试题8
+public:
+  struct Node
+  {
+    Node *m_pLeft, *m_pRight, *m_pParent;
+    char m_Value;
+    Node(char value, Node* l=nullptr, Node *r=nullptr, Node* p=nullptr):
+    m_pLeft(l), m_pRight(r), m_pParent(p), m_Value(value){}
+  };
+  Node* nextNode(Node* node){
+    if(node->m_pRight != nullptr){
+      Node* result = node->m_pRight;
+      while(result->m_pLeft != nullptr){
+        result = result->m_pLeft;
+      }
+      return result;
+    }else if(node->m_pParent != nullptr){
+      Node* parent = node->m_pParent;
+      while(parent != nullptr){
+        if(parent->m_pLeft == node){
+          return parent;
+        }else{
+          node = parent;
+          parent = parent->m_pParent;
+        }
+      }
+      return nullptr;
+    }
+    return nullptr;
+  }
+  void main(){
+    Node* l = new Node('h');
+    Node* r = new Node('i');
+    Node* p = new Node('e', l, r);
+    l->m_pParent = p;
+    r->m_pParent = p;
+
+    r = p;
+    l = new Node('d');
+    p = new Node('b', l, r);
+    l->m_pParent = p;
+    r->m_pParent = p;
+
+    l = p;
+    r = new Node('c');
+    Node *root = new Node('a', l, r);
+    l->m_pParent = root;
+    r->m_pParent = root;
+
+    p = r;
+    l = new Node('f');
+    r = new Node('g');
+    Node* objNode = r;
+    p->m_pLeft = l;
+    p->m_pRight = r;
+    l->m_pParent = p;
+    r->m_pParent = p;
+
+    Node* nextNode = this->nextNode(objNode);
+    if(nextNode != nullptr){
+      LOG(INFO)<<"Next node of "<<objNode->m_Value<<" is:"<<nextNode->m_Value;
+    }else{
+      LOG(INFO)<<"Next node NOT exists!";
+    }
+  }
+};
+
+TEST_F(Playground201910, TC17){
+  TC17Solution s;
+  s.main();
+}
+
+class TC18Solution {
+  // 改进的斐波那契算法
+public:
+  int fibonacci(int n){
+    if(n == 0)
+      return 0;
+    if(n == 1)
+      return 1;
+
+    int fib1 = 0;
+    int fib2 = 1;
+    int fib = 0;
+    for(int i=2; i<n; i++){
+      fib = fib1 + fib2;
+      fib2 = fib1;
+      fib1 = fib;
+    }
+    return fib;
+
+  }
+  void main(){
+    int n = 10;
+    LOG(INFO)<<"fibonacci "<<n<<" is:"<<fibonacci(n);
+  }
+};
+
+TEST_F(Playground201910, TC18){
+  TC18Solution s;
+  s.main();
+}
+
+class TC19Solution {
+  // 实现快速排序算法
+public:
+
+  void quickSort(int *data, int num){
+    if(num <= 1)
+      return;
+
+    int iLeft = 0;
+    int iRight = num - 1;
+    while(iLeft < iRight){
+      while(data[iRight]>=data[0] && iLeft < iRight)
+        iRight--;
+      while(data[iLeft]<=data[0] && iLeft < iRight)
+        iLeft++;
+      if(iLeft != iRight){
+        int tmp = data[iLeft];
+        data[iLeft] = data[iRight];
+        data[iRight] = tmp;
+      }
+    }
+    int tmp = data[iLeft];
+    data[iLeft] = data[0];
+    data[0] = tmp;
+    quickSort(data, iLeft);
+    quickSort(data+iLeft+1, num - iLeft - 1);
+  }
+
+  void main(){
+    int data[] = {6, 1, 2, 7, 9, 3, 4, 5, 10, 8};
+    int num = sizeof(data) / sizeof(int);
+
+    LOG(INFO)<<"to sort:";
+    for(int i=0; i<num; i++){
+      printf(" %d", data[i]);
+    }
+    printf("\n");
+
+    quickSort(data, num);
+
+    LOG(INFO)<<"sorted:";
+    for(int i=0; i<num; i++){
+      printf(" %d", data[i]);
+    }
+    printf("\n");
+  }
+};
+
+TEST_F(Playground201910, TC19){
+  TC19Solution s;
+  s.main();
+}
+
+class TC20Solution {
+  // 把一个数组最开始的若干个元素搬到数组末尾，称为数组的旋转。
+  // 输入：一个递增数组的旋转，求改递增数组的最小元素。
+  // 例如：递增数组{1, 2, 3, 4, 5}，其旋转为{3, 4, 5, 1, 2}，最小值为1
+public:
+  int minValue(int *data, int num){
+    int l = 0;
+    int r = num - 1;
+    while(data[l]>data[r]){
+      if(r - l == 1)
+        return data[r];
+
+      int mid = (l + r) / 2;
+      if(data[mid]<data[r]){
+        r = mid;
+      }else if(data[mid]>data[l]){
+        l = mid;
+      }
+    }
+  }
+  void main(){
+    int data[] = {5, 6, 7, 8, 3, 4};
+    int num = sizeof(data) / sizeof(int);
+    LOG(INFO)<<minValue(data, num);
+  }
+};
+
+TEST_F(Playground201910, TC20){
+  TC20Solution s;
+  s.main();
+}
+
+class TC21Solution {
+  // 设计一个函数，用来判断在一个矩阵中是否存在一条包含字符串所有字符的路径。
+  // 路径可以从矩阵任一格开始，每一步可以在矩阵中向上下左右移动一格。如果一
+  // 条路径经过了矩阵的某一格，则该路径不能再次进入该格子。
+public:
+  bool hasPathCore(char* matrix, int row, int col, int rpos, int cpos, 
+  char* str, int pathlen, bool* visited){
+    if(str[pathlen] == '\0')
+      return true;
+
+    if (rpos >= 0 && cpos >= 0 && rpos < row & cpos < col &&
+        matrix[rpos * col + cpos] == str[pathlen] &&
+        visited[rpos * col + cpos] == false)
+    {
+      pathlen++;
+      visited[rpos * row + cpos] = true;
+      bool hasPath = hasPathCore(matrix, row, col, rpos + 1, cpos,
+                                 str, pathlen, visited) ||
+                     hasPathCore(matrix, row, col, rpos - 1, cpos,
+                                 str, pathlen, visited) ||
+                     hasPathCore(matrix, row, col, rpos, cpos + 1,
+                                 str, pathlen, visited) ||
+                     hasPathCore(matrix, row, col, rpos, cpos - 1,
+                                 str, pathlen, visited);
+      if(!hasPath){
+        visited[rpos*row +cpos] = false;
+      }else{
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool hasPath(char* matrix, int row, int col, char* str){
+    if(matrix == nullptr || row < 1 || col < 1 || str == nullptr)
+      return false;
+
+    bool *visited = new bool[row * col];
+    memset(visited, 0, row * col);
+    int pathlen = 0;
+    for(int i=0; i<row; i++){
+      for(int j=0; j<col; j++){
+        if(hasPathCore(matrix, row, col, i, j, str, pathlen, visited)){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  void main(){
+    char matrix[3][4] = {
+      {'a', 'b', 't', 'g'},
+      {'c', 'f', 'c', 's'},
+      {'j', 'd', 'e', 'h'},
+    };
+    // LOG(INFO)<<"has path:"<<hasPath(&matrix[0][0], 3, 4, "bfce");
+    LOG(INFO)<<"has path:"<<hasPath(&matrix[0][0], 3, 4, "bfcj");
+    // LOG(INFO)<<"has path:"<<hasPath(&matrix[0][0], 3, 4, "acj");
+  }
+};
+
+TEST_F(Playground201910, TC21){
+  TC21Solution s;
+  s.main();
+}
+
+class TC22Solution {
+  // 地上有一个m行n列的方格。一个机器人从坐标(0, 0)的格子开始移动，他每次可以向上下左右
+  // 移动一格，但不能进入行、列坐标数位之和大于k的格子。
+  // 例如，当k=18时，机器人能进入(35, 37)，3+5+3+7=18，但不能进入方格(35, 38)，
+  // 3+5+3+8=19。
+  // 请问机器人能够到达多少个格子？
+public:
+  int movingCount(int threshold, int row, int col){
+    if(threshold < 0 || row<=0 || col <=0)
+      return 0;
+    bool *visited = new bool[row*col];
+    for(int i=0; i<row*col; i++)
+      visited[i] = false;
+    int count = movingCountCore(threshold, row, col, 0, 0, visited);
+    delete []visited;
+    return count;
+  }
+
+  int getDigitSum(int pos){
+    int sum = 0;
+    while(pos>0){
+      sum += pos % 10;
+      pos = pos / 10;
+    }
+    return sum;
+  }
+
+  bool checkPos(int rpos, int cpos, int row, int col, int threshold,
+                bool *visited)
+  {
+    if (rpos >= 0 && cpos >= 0 && rpos < row && cpos < col &&
+        !visited[rpos * col + cpos] &&
+        getDigitSum(rpos) + getDigitSum(cpos) <= threshold)
+      return true;
+    return false;
+  }
+
+  int movingCountCore(int threshold, int row, int col,
+                      int rpos, int cpos, bool *visited)
+  {
+    if (checkPos(rpos, cpos, row, col, threshold, visited))
+    {
+      LOG(INFO)<<"visit (" <<rpos<<","<<cpos<<")";
+      visited[rpos * col + cpos] = true;
+      return 1 + movingCountCore(threshold, row, col, 
+      rpos, cpos + 1, visited) + 
+      movingCountCore(threshold, row, col, 
+      rpos + 1, cpos, visited) + 
+      movingCountCore(threshold, row, col, 
+      rpos, cpos - 1, visited) + 
+      movingCountCore(threshold, row, col, 
+      rpos - 1, cpos, visited);
+    }
+
+    return 0;
+  }
+
+  void main(){
+    LOG(INFO)<<"moving count:"<<movingCount(5, 4, 4);
+  }
+};
+
+TEST_F(Playground201910, TC22){
+  TC22Solution s;
+  s.main();
+}
+
+
 class TCXXSolution {
 public:
   void main(){
