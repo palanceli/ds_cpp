@@ -1749,10 +1749,42 @@ TEST_F(JZOffer, TC46){
   s.main();
 }
 
-// 
+// 在一个m×n的棋盘的每一格都放一个礼物，每个礼物有一定的价值。你可以从棋盘的左上角
+// 开始拿礼物，每次向右或向下移动一格，直到到达棋盘右下角。给定一个棋盘及上面的礼物，
+// 请计算最多能拿到多少价值的礼物。
 class TC47Solution {
 public:
+  int getMaxValue(int *values, int row, int col){
+    int *maxValue = new int[row * col];
+    for(int i=0; i<row; i++){
+      for(int j=0; j<col; j++){
+        if(i == 0 && j == 0){
+          maxValue[i * col + j] = values[i * col + j];
+        }else if(i == 0){
+          maxValue[i * col + j] = values[i * col + j] + maxValue[i * col + j - 1];
+        }else if(j== 0){
+          maxValue[i * col + j] = values[i * col + j] + maxValue[(i - 1) * col + j];
+        }else{
+          int up = maxValue[(i-1) * col + j];
+          int left = maxValue[i * col + j - 1];
+          maxValue[i * col + j] = values[i * col + j] + std::max(up, left);
+        }
+      }
+    }
+    int result = maxValue[row * col - 1];
+    delete [] maxValue;
+    return result;
+  }
   void main(){
+    int values[4][4] = {
+      { 1, 10,  3,  8},
+      {12,  2,  9,  6},
+      { 5,  7,  4, 11},
+      { 3,  7, 16,  5},
+    };
+    int result = getMaxValue(&values[0][0], 4, 4);
+    LOG(INFO)<<"max value="<<result;
+    EXPECT_EQ(53, result);
   }
 };
 
