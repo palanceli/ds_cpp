@@ -1793,6 +1793,76 @@ TEST_F(JZOffer, TC47){
   s.main();
 }
 
+// 请从字符串中找出一个最长的不包含重复字符的子串，计算该子串的长度。假设
+// 字符串中只包含a~z的字符。例如：arabcacfr中，该子串是acfr，长度为4。
+class TC48Solution {
+public:
+  int longestSubStrLengthWithouDup(const char* str){
+    int position[26] = {-1};
+    int maxLength = 0;
+    int currLength = 0;
+    for(int i=0; i<strlen(str); i++){
+      int prevPos = position[str[i] - 'a'];
+      if(prevPos == -1 || (i - prevPos) > currLength)
+        currLength++;
+      else{
+        currLength = i - prevPos;
+      }
+      position[str[i] - 'a'] = i;
+      if(maxLength < currLength)
+        maxLength = currLength;
+    }
+    return maxLength;
+  }
+  void main(){
+    char *data = "arabcacfr";
+    LOG(INFO)<<"longest sub string length without dup is:"<<longestSubStrLengthWithouDup(data);
+  }
+};
+
+TEST_F(JZOffer, TC48){
+  TC48Solution s;
+  s.main();
+}
+
+class TC49Solution {
+public:
+  int getUglyNum(int index){
+    int *uglyNums = new int[index];
+    uglyNums[0] = 1;
+    int *uglyNum2 = uglyNums;
+    int *uglyNum3 = uglyNums;
+    int *uglyNum5 = uglyNums;
+    int nextIndex = 1;
+    while(nextIndex<index){
+      int min = std::min(std::min(*uglyNum2*2, *uglyNum3*3), *uglyNum5*5);
+      uglyNums[nextIndex] = min;
+      while(*uglyNum2 * 2 <= uglyNums[nextIndex])
+        uglyNum2++;
+      while(*uglyNum3 * 3 <= uglyNums[nextIndex])
+        uglyNum3++;
+      while(*uglyNum5 * 5 <= uglyNums[nextIndex])
+        uglyNum5++;
+      nextIndex++;
+    }
+    int result = uglyNums[index - 1];
+    delete []uglyNums;
+    return result;
+  }
+
+  void main(){
+    int index = 1400;
+    int uglyNum = getUglyNum(index);
+    LOG(INFO)<<"the "<<index<<" ugly num is:"<< uglyNum;
+    ASSERT_EQ(516560652, uglyNum);
+  }
+};
+
+TEST_F(JZOffer, TC49){
+  TC49Solution s;
+  s.main();
+}
+
 class TCSolution {
 public:
   void main(){
