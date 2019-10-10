@@ -1863,6 +1863,91 @@ TEST_F(JZOffer, TC49){
   s.main();
 }
 
+// 在字符串中找到第一个只出现一次的字符。
+class TC50Solution {
+public:
+  char findNotRepeatedChar(const char* str){
+    char hash[256] = {0};
+    for(const char *ch=str; *ch!='\0'; ch++){
+      hash[*ch]++;
+    }
+    for(const char *ch=str; *ch!='\0'; ch++){
+      if(hash[*ch] == 1)
+        return *ch;
+    }
+    return 0;
+  }
+  void main(){
+    char *str = "abaccdeff";
+    char ch = findNotRepeatedChar(str);
+    ASSERT_EQ('b', ch);
+    LOG(INFO)<<"Not repeated char is:"<<ch;
+  }
+};
+
+TEST_F(JZOffer, TC50){
+  TC50Solution s;
+  s.main();
+}
+
+// 在数组中的两个数字，如果前面的一个数字大于后面的一个数字，则称这两个数字为逆序对。
+// 输入一个数组，求数组中逆序对的总数。例如：数组{7, 5, 6, 4}，共存在5个逆序对：
+// (7, 5), (7, 6), (7, 4), (5, 4), (6, 4)
+class TC51Solution {
+public:
+  int inversePairCountCore(int* data, int* copy, int start, int end){
+    if(start >= end)
+      return 0;
+    int mid = (start + end) / 2;
+    int left = inversePairCountCore(data, copy, start, mid);
+    int right = inversePairCountCore(data, copy, mid+1, end);
+    int lend = mid;
+    int rend = end;
+    int count = 0;
+    int index = end;
+
+    while(lend>=start && rend>=mid+1){
+      if(data[lend] > data[rend]){
+        count += rend-mid;
+        copy[index--] = data[lend--];
+      }else{
+        copy[index--] = data[rend--];
+      }
+    }
+    while(lend>=start){
+      copy[index--] = data[lend--];
+    }
+    while(rend>=mid+1){
+      copy[index--] = data[rend--];
+    }
+    memcpy(data+start, copy+start, (end-start+1)*sizeof(int));
+    return left + right + count;
+  }
+
+  int inversePairCount(int* data, int len){
+    if(data == nullptr)
+      return 0;
+    int *copy = new int[len];
+    memcpy(copy, data, sizeof(int)*len);
+    int cnt = inversePairCountCore(data, copy, 0, len-1);
+    delete []copy;
+    return cnt;
+  }
+
+  void main(){
+    int data[] = {7, 5, 6, 4, 3};
+    int len = sizeof(data) / sizeof(int);
+    int result = inversePairCount(data, len);
+    LOG(INFO)<<"inverse pair count is:"<<result;
+    ASSERT_EQ(9, result);
+  }
+};
+
+TEST_F(JZOffer, TC51){
+  TC51Solution s;
+  s.main();
+}
+
 class TCSolution {
 public:
   void main(){
