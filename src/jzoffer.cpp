@@ -1948,6 +1948,188 @@ TEST_F(JZOffer, TC51){
   s.main();
 }
 
+template<typename T>
+struct LinkListNode{
+  T m_Value;
+  LinkListNode<T>* m_pNext;
+  LinkListNode(T value, LinkListNode<T>* pNext=nullptr):m_Value(value), m_pNext(pNext){}
+};
+
+// 输入两个链表，找出他们第一个公共节点。
+class TC52Solution {
+  typedef LinkListNode<int> Node;
+public:
+  Node* findFirstCommonNode(Node* root1, Node* root2){
+    if(root1 == nullptr || root2 == nullptr)
+      return nullptr;
+    int len1 = 0;
+    int len2 = 0;
+    for(Node* node=root1; node!=nullptr; node=node->m_pNext)
+      len1++;
+    for(Node* node=root2; node!=nullptr; node=node->m_pNext)
+      len2++;
+
+    if(len1 > len2){
+      for(int i=0; i<(len1-len2); i++)
+        root1=root1->m_pNext;
+    }else if(len1 < len2){
+      for(int i=0; i<(len2-len1); i++)
+        root2=root2->m_pNext;
+    }
+
+    while(root1!=nullptr && root2!=nullptr){
+      if(root1 == root2)
+        return root1;
+      root1=root1->m_pNext;
+      root2=root2->m_pNext;
+    }
+    return nullptr;
+  }
+  void main(){
+    Node *p1 = new Node(7);
+    Node *p2 = new Node(6, p1);
+    p1 = p2;
+    p2 = new Node(5, p1);
+    Node *p3 = new Node(3, p1);
+    p1 = p2;
+    p2 = new Node(4, p1);
+    p1 = new Node(2, p3);
+    p3 = p1;
+    p1 = new Node(1, p3);
+    Node *firstCommonNode = findFirstCommonNode(p1, p2);
+    ASSERT_NE(nullptr, firstCommonNode);
+    ASSERT_EQ(6, firstCommonNode->m_Value);
+  }
+};
+
+TEST_F(JZOffer, TC52){
+  TC52Solution s;
+  s.main();
+}
+
+// 统计一个数字在排序数组中出现的次数。例如给定数组{1, 2, 3, 3, 3, 3, 4, 5}
+// 和数字3，输出4
+class TC53Solution {
+public:
+  int getFirstK(int *data, int num, int start, int end, int k){
+    if(data == nullptr || num == 0 || start > end)
+      return -1;
+    while(start <= end){
+      int mid = (start + end) / 2;
+      if(data[mid] > k){
+        end = mid - 1;
+      }else if(data[mid] < k){
+        start = mid + 1;
+      }else{  // data[mid] == k
+        if(mid == 0){
+          return 0;
+        }else{
+          if(data[mid - 1] == k){
+            end = mid - 1;
+          }else{
+            return mid;
+          }
+        }
+      }
+    }
+    return -1;
+  }
+
+  int getLastK(int *data, int num, int start, int end, int k){
+    if(data == nullptr || num == 0 || start > end)
+      return -1;
+    while(start <= end){
+      int mid = (start + end) / 2;
+      if(data[mid] > k){
+        end = mid - 1;
+      }else if(data[mid] < k){
+        start = mid + 1;
+      }else{  // data[mid] == k
+        if(mid == end){
+          return mid;
+        }else{
+          if(data[mid + 1] == k){
+            start = mid + 1;
+          }else{
+            return mid;
+          }
+        }
+      }
+    }
+    return -1;
+  }
+  int getCountOfK(int *data, int num, int k){
+    int first = getFirstK(data, num, 0, num - 1, k);
+    int last = getLastK(data, num, 0, num - 1, k);
+    if(first == -1 || last == -1)
+      return 0;
+    return (last - first + 1);
+  }
+  void main(){
+    int data[] = {1, 2, 3, 3, 3, 3, 4, 5};
+    int num = sizeof(data) / sizeof(int);
+    int k = 3;
+    LOG(INFO)<<"count of "<<k<<" is:"<<getCountOfK(data, num, k);
+  }
+};
+
+TEST_F(JZOffer, TC53){
+  TC53Solution s;
+  s.main();
+}
+
+// 给定一个二叉搜索树，请找出其中第k大节点
+class TC54Solution {
+  typedef BinaryTreeNode<int> Node;
+public:
+  Node* GetKthNodeCore(Node* node, int &k){
+    Node* result = nullptr;
+    if(node->m_pLeft != nullptr)
+      result = GetKthNodeCore(node->m_pLeft, k);
+
+    if(result == nullptr){ // 说明左子树没有命中
+      if(k == 1){
+        result = node;
+      }else{
+        k--;
+      }
+    }
+
+    if(result == nullptr && node->m_pRight != nullptr)
+      result = GetKthNodeCore(node->m_pRight, k);
+    
+    return result;
+  }
+  Node* GetKthNode(Node *root, int k){
+    if(root == nullptr || k < 1)
+      return nullptr;
+    return GetKthNodeCore(root, k);
+  }
+  void main(){
+    Node *l = new Node(2);
+    Node *r = new Node(4);
+    Node *root = new Node(3, l, r);
+    l = new Node(6);
+    r = new Node(8);
+    Node *p = new Node(7, l, r);
+    l = root;
+    r = p;
+    root = new Node(5, l, r);
+    int k = 3;
+    p = GetKthNode(root, k);
+    if(p != nullptr){
+      LOG(INFO)<<"The "<<k<<"th Node is:"<<p->m_Value;
+    }else{
+      LOG(INFO)<<"The "<<k<<"th Node NOT exists";
+    }
+  }
+};
+
+TEST_F(JZOffer, TC54){
+  TC54Solution s;
+  s.main();
+}
+
 class TCSolution {
 public:
   void main(){
