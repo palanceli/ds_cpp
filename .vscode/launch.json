@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
-            "args": ["--gtest_filter=JZOffer.TC53"],
+            "args": ["--gtest_filter=JZOffer.TC59"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

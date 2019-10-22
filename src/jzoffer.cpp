@@ -2130,6 +2130,209 @@ TEST_F(JZOffer, TC54){
   s.main();
 }
 
+// 输入一棵二叉树的根节点，求该树的深度（从根节点到叶子节点的最长路径）。
+class TC55Solution {
+  typedef BinaryTreeNode<int> Node;
+public:
+  int treeDepth(Node* root){
+    if(root == nullptr)
+      return 0;
+    int left = treeDepth(root->m_pLeft);
+    int right = treeDepth(root->m_pRight);
+    return left>right?(left+1):(right+1);
+  }
+
+  void main(){
+    Node* l = new Node(7);
+    Node* p = new Node(5, l);
+    Node* r = p;
+    l = new Node(4);
+    Node* root = new Node(2, l, r);
+    r = new Node(6);
+    p = new Node(3, nullptr, r);
+    l = root;
+    r = p;
+    root = new Node(1, l, r);
+    LOG(INFO)<<"tree depth is:"<<treeDepth(root);
+  }
+};
+
+TEST_F(JZOffer, TC55){
+  TC55Solution s;
+  s.main();
+}
+
+// 输入一棵二叉树的根节点，判断该二叉树是不是平衡二叉树。
+class TC55BSolution {
+  typedef BinaryTreeNode<int> Node;
+public:
+  bool isBalance(Node* root, int& depth){
+    if(root == nullptr){
+      depth = 0;
+      return true;
+    }
+    int left = 0;
+    int right = 0;
+    if(isBalance(root->m_pLeft, left) && isBalance(root->m_pRight, right)){
+      int diff = left - right;
+      if(diff <= 1 && diff >= -1){
+        depth = 1 + (left>right?left:right);
+        return true;
+      }
+    }
+    LOG(INFO)<<"node "<<root->m_Value<<" is not balance. left="<<left<<" right="<<right;
+    return false;
+  }
+  void main(){
+    Node* l = new Node(7);
+    Node* p = new Node(5, l);
+    Node* r = p;
+    l = new Node(4);
+    Node* root = new Node(2, l, r);
+    r = new Node(6);
+    p = new Node(3, nullptr, r);
+    l = root;
+    r = p;
+    root = new Node(1, l, r);
+    int depth = 0;
+    bool ret = isBalance(root, depth);
+    if(ret){
+      LOG(INFO)<<"tree is balance";
+    }else{
+      LOG(INFO)<<"tree is NOT balance";
+    }
+  }
+};
+
+TEST_F(JZOffer, TC55B){
+  TC55BSolution s;
+  s.main();
+}
+
+// 给定一个正整数s，求所有和为s的连续正整数序列（至少含有两个数）
+class TC57Solution {
+public:
+  void printContinuousSequence(int start, int end){
+    printf("continuous sequence: ");
+    for(int i=start; i<=end; i++){
+      printf(" %d", i);
+    }
+    printf("\n");
+  }
+  void findContinuousSequence(int sum){
+    if(sum < 3)
+      return;
+    int start = 1;
+    int end = 2;
+    int mid = (sum + 1) / 2;
+    int currSum = start + end;
+    while(start < mid){
+      if(currSum == sum)
+        printContinuousSequence(start, end);
+      
+      while(currSum > sum && start < mid){
+        currSum -= start;
+        start++;
+        if(currSum == sum)
+          printContinuousSequence(start, end);
+      }
+      end++;
+      currSum += end;
+    }
+  }
+  void main(){
+    findContinuousSequence(3);
+  }
+};
+
+TEST_F(JZOffer, TC57){
+  TC57Solution s;
+  s.main();
+}
+
+// 字符串的左旋操作是把字符串前面若干个字符转移到字符串的尾部。比如：
+// 输入字串abcdefg和数字2，该函数左旋结果为cdefgab。
+class TC58Solution {
+public:
+  void reverseString(char* str, int begin, int end){
+    if(str == nullptr)
+      return;
+    while(begin < end){
+      char tmp = str[begin];
+      str[begin] = str[end];
+      str[end] = tmp;
+      begin++;
+      end--;
+    }
+  }
+  void leftRotateString(char* str, int n){
+    int len = strlen(str);
+    if(n>=len)
+      return;
+    reverseString(str, 0, len-1);
+    reverseString(str, 0, len - n - 1);
+    reverseString(str, len - n, len - 1);
+  }
+  void main(){
+    char str[] = "abcdefg";
+    leftRotateString(str, 2);
+    LOG(INFO)<<"rotated string is: "<<str;
+  }
+};
+
+TEST_F(JZOffer, TC58){
+  TC58Solution s;
+  s.main();
+}
+
+// 给定一个数组和滑动窗口的大小，请找出所有滑动窗口里的最大值。例如：
+// 数组{2, 3, 4, 2, 6, 2, 5, 1}，滑动窗口为3，则共存在6个滑动窗口
+// 他们的最大值分别为{4, 4, 6, 6, 6, 5}
+class TC59Solution {
+public:
+  std::vector<int> maxInWindow(const std::vector<int>& num, unsigned int size){
+    std::vector<int> maxWindow;
+    if(size>num.size() || size <= 0){
+      return maxWindow;
+    }
+    std::deque<int> index;
+    for(int i=0; i<size; i++){
+      while(!index.empty() && num[i] >= num[index.back()]){
+        index.pop_back();
+      }
+      index.push_back(i);
+    }
+    for(int i=size; i<num.size(); i++){
+      maxWindow.push_back(num[index.front()]);
+      while(!index.empty() && num[i] >= num[index.back()]){
+        index.pop_back();
+      }
+      if(!index.empty() && index.front() <= i - size){
+        index.pop_front();
+      }
+      index.push_back(i);
+    }
+    maxWindow.push_back(num[index.front()]);
+    return maxWindow;
+  }
+  void main(){
+    std::vector<int> num = {2, 3, 4, 2, 6, 2, 5, 1};
+    // std::vector<int> num = {5, 2, 3, 6, 4, 1, 7, 4, 5, 9};
+
+    int size = 3;
+    std::vector<int> maxInWin = maxInWindow(num, size);
+    for(int i=0; i<maxInWin.size(); i++){
+      printf(" %d", maxInWin[i]);
+    }
+    printf("\n");
+  }
+};
+
+TEST_F(JZOffer, TC59){
+  TC59Solution s;
+  s.main();
+}
+
 class TCSolution {
 public:
   void main(){
