@@ -2333,6 +2333,85 @@ TEST_F(JZOffer, TC59){
   s.main();
 }
 
+// 把n个骰子扔在地上，所有筛子朝上一面的点数之和为s。输入n，打印出s所有可能的值出现的概率。
+class TC60Solution {
+public:
+  void printProbability(int n){
+    if(n < 1)
+      return;
+    int * results[2];
+    results[0] = new int[6 * n + 1];
+    results[1] = new int[6 * n + 1];
+    for(int i=0; i<2; i++){
+      for(int j=0; j<6*n+1; j++){
+        results[i][j] = 0;
+      }
+    }
+    for(int i=1; i<=6; i++){// 第1轮，6个面均为1
+      results[1][i] = 1;
+    } 
+    for(int i=2; i<=n; i++){// 第i轮
+      for(int j=i; j<i*6 + 1; j++){ // 投出j个点
+        for(int k=j-6; k<j; k++){
+          if(k>0){
+            results[i % 2][j] += results[(i - 1) % 2][k];
+          }
+        }
+      }
+    }
+    int total = 0;
+    for(int i=n; i<n*6+1; i++){
+      total += results[n % 2][i];
+    }
+    for(int i=n; i<n*6+1; i++){
+      printf("%2d: %.2f%%(%d/%d)\n", 
+      i, float(results[n % 2][i]) * 100 / float(total), results[n % 2][i], total);
+    }
+  }
+  void main(){
+    printProbability(2);
+  }
+};
+
+TEST_F(JZOffer, TC60){
+  TC60Solution s;
+  s.main();
+}
+
+// 假设把某股票的价格按照时间先后顺序存储在数组中，请问买卖股票一次可能获得
+// 的最大利润是多少？
+// 例如一只股票在一些时间节点的价格为{9, 11, 8, 5, 7, 12, 16, 14}
+// 在5的时候买入，16时卖出能收获最大利润11。
+class TC63Solution {
+public:
+  int maxDiff(const int* numbers, unsigned int length){
+    if(length <= 1)
+      return 0;
+    int min = numbers[0];
+    int maxdiff = numbers[1] - numbers[0];
+    for(int i=2; i<length; i++){
+      if(numbers[i-1]<min)
+        min = numbers[i-1];
+      
+      int currdiff = numbers[i] - min;
+      if(currdiff > maxdiff){
+        maxdiff = currdiff;
+      }
+    }
+    return maxdiff;
+  }
+  void main(){
+    int numbers[] = {9, 11, 8, 5, 7, 12, 16, 14};
+    int length = sizeof(numbers) / sizeof(int);
+    LOG(INFO)<<"max diff is "<<maxDiff(numbers, length);
+  }
+};
+
+TEST_F(JZOffer, TC63){
+  TC63Solution s;
+  s.main();
+}
+
 class TCSolution {
 public:
   void main(){
