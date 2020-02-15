@@ -1,6 +1,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <gtest/gtest.h>
+#include <algorithm>
+#include "glog/logging.h"
+
 // 输入数字n，按顺序打印出从1到最大的n位八进制数
 // 阅读如下代码，说明MainProc的处理逻辑
 bool SubProc(char *number, int system)
@@ -44,8 +48,20 @@ void MainProc(int n, int s)
     delete []number;
 }
 
-int main()
-{
+class PrintNumberTest : public testing::Test{
+
+protected:
+  static void SetUpTestCase(){
+    FLAGS_logtostderr = 1; // 输出到控制台
+    setlocale(LC_ALL, "");
+  }
+  static void TearDownTestCase(){
+  }
+  
+};
+
+TEST_F(PrintNumberTest, TC01){
     MainProc(3, 8);
-    return 0;
+    printf("\n");
 }
+
